@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sri Lanka 22kt Gold Rate Live</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #ffd700, #fff8dc);
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+    h1 {
+      margin-bottom: 1rem;
+      color: #b8860b;
+    }
+    .rate-container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+    .rate {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #d4af37;
+      margin: 1rem 0;
+    }
+    .timestamp {
+      margin-top: 1rem;
+      font-size: 0.95rem;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Sri Lanka 22kt Gold Rate</h1>
+  <div class="rate-container">
+    <div>Live 22kt Gold Price per Gram (LKR):</div>
+    <div id="goldRate" class="rate">Loading…</div>
+    <div id="dateTime" class="timestamp">--</div>
+  </div>
+
+  <script>
+    const API_KEY = '959d58abe4ef8ee8b7db68b4388c0585959d58ab';
+    const API_URL = 'https://corsproxy.io/?https://goldpricez.com/api/rates/currency/lkr/measure/gram';
+
+
+    function formatDateTime(d) {
+      const pad = (n) => n.toString().padStart(2, '0');
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+    }
+
+    async function updateGoldRate() {
+      try {
+        const res = await fetch(API_URL, {
+          headers: { 'X-API-KEY': API_KEY }
+        });
+        const data = await res.json();
+
+        // Use 24kt price and convert to 22kt
+        const price24kt = data.rates?.gram;
+        if (!price24kt) {
+          throw new Error("Unexpected API response format");
+        }
+
+        const price22kt = price24kt * (22 / 24);
+        document.getElementById('goldRate').innerText = `LKR ${price22kt.toFixed(2)}`;
+        document.getElementById('dateTime').innerText = `Updated: ${formatDateTime(new Date())}`;
+      } catch (error) {
+        console.error('Error fetching gold rate:', error);
+        document.getElementById('goldRate').innerText = 'Error loading';
+        document.getElementById('dateTime').innerText = '';
+      }
+    }
+
+    // Initial call
+    updateGoldRate();
+    // Repeat every second
+    setInterval(updateGoldRate, 1000);
+  </script>
+</body>
+</html>
